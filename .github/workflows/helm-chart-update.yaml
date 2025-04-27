@@ -11,7 +11,7 @@ on:
 
 jobs:
   lint:
-    runs-on: [self-hosted, azure]
+    runs-on: [self-hosted, deploy-runner]
     steps:
       - uses: actions/checkout@v3
       
