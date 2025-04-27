@@ -31,7 +31,7 @@ jobs:
 
   sync-argocd:
     needs: lint
-    runs-on: [self-hosted, azure]
+    runs-on: [sself-hosted, deploy]
     steps:
       - uses: actions/checkout@v3
       
