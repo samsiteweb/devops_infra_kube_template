@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'helm/**'
-  
+
   # Allow manual trigger
   workflow_dispatch:
 
