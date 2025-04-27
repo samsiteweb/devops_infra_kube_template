@@ -1,0 +1,100 @@
+# Consul Configuration
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: consul-config
+  namespace: semanix
+spec:
+  type: configuration.consul
+  version: v1
+  metadata:
+  - name: host
+    value: consul.default.svc.cluster.local:8500
+scopes: []
+
+---
+
+# Redis State Store
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: redis-statestore
+  namespace: semanix
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-master.default.svc.cluster.local:6379
+  - name: redisPassword
+    value: ""
+scopes: []
+
+---
+
+# Redis PubSub
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: redis-pubsub
+  namespace: semanix
+spec:
+  type: pubsub.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis-master.default.svc.cluster.local:6379
+  - name: redisPassword
+    value: ""
+scopes: []
+
+---
+
+# PostgreSQL State Store
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: postgres-statestore
+  namespace: semanix
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  - name: connectionString
+    value: "host=postgres.default.svc.cluster.local port=5432 user=postgres password=secret dbname=dapr_state sslmode=disable"
+scopes: []
+
+---
+
+# MongoDB State Store
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: mongo-statestore
+  namespace: semanix
+spec:
+  type: state.mongodb
+  version: v1
+  metadata:
+  - name: connectionString
+    value: "mongodb://mongo.default.svc.cluster.local:27017"
+  - name: databaseName
+    value: "daprdb"
+scopes: []
+
+---
+
+# RabbitMQ PubSub
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: rabbitmq-pubsub
+  namespace: semanix
+spec:
+  type: pubsub.rabbitmq
+  version: v1
+  metadata:
+  - name: connectionString
+    value: "amqp://user:password@rabbitmq.default.svc.cluster.local:5672"
+scopes: []
+

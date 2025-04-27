@@ -1,0 +1,4 @@
+podAnnotations:
+  dapr.io/enabled: "true"
+  dapr.io/app-id: "requestmanagement"
+  dapr.io/app-port: "8090" 

@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: semanix-backend-requestmanagement
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: requestmanagementapi=${AZURE_REGISTRY_NAME}.azurecr.io/requestmanagementapi
+    argocd-image-updater.argoproj.io/requestmanagementapi.update-strategy: digest
+    argocd-image-updater.argoproj.io/requestmanagementapi.allow-tags: regexp:^[a-f0-9]{7}$
+spec:
+  project: default
+  source:
+    repoURL: "https://github.com/YOUR_ORG/semanix-deployment.git"
+    targetRevision: main
+    path: helm/charts/requestmanagement
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: serviceAccount.create
+          value: "false"
+        - name: serviceAccount.name
+          value: "semanix-backend-requestmanagement"
+        - name: image.repository
+          value: "${AZURE_REGISTRY_NAME}.azurecr.io/requestmanagementapi"
+        - name: image.tag
+          value: "latest"
+      values: |
+        dapr:
+          enabled: true
+          appId: requestmanagement
+          appPort: 8080
+          config: dapr-config
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: semanix
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

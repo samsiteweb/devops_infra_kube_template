@@ -1,0 +1,66 @@
+name: Helm Chart Update
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'helm/**'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: [self-hosted, azure]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.11.0'
+      
+      - name: Lint Helm charts
+        run: |
+          for chart in helm/charts/*; do
+            if [ -d "$chart" ]; then
+              echo "Linting chart: $chart"
+              helm lint "$chart"
+            fi
+          done
+
+  sync-argocd:
+    needs: lint
+    runs-on: [self-hosted, azure]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Argo CD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin
+      
+      - name: ArgoCD Login
+        run: |
+          sudo argocd login ${{ secrets.ARGOCD_SERVER }} --username ${{ secrets.ARGOCD_USER }} --password ${{ secrets.ARGOCD_PASSWORD }} --insecure
+      
+      - name: Sync ArgoCD Applications
+        run: |
+          # Find all ArgoCD application manifests
+          for app_file in k8s/argocd/*-app.yaml; do
+            if [ -f "$app_file" ]; then
+              # Extract app name from filename
+              app_name=$(basename "$app_file" | sed 's/-app.yaml//')
+              
+              echo "Syncing application: $app_name"
+              
+              # Check if app exists in ArgoCD
+              if sudo argocd app get "semanix-backend-$app_name" &>/dev/null; then
+                sudo argocd app sync "semanix-backend-$app_name" --timeout 180
+                sudo argocd app wait "semanix-backend-$app_name" --health --timeout 180
+              else
+                echo "Application $app_name not found in ArgoCD. Skipping sync."
+              fi
+            fi
+          done 

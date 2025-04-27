@@ -1,0 +1,4 @@
+podAnnotations:
+  dapr.io/enabled: "true"
+  dapr.io/app-id: "accessmanagement"
+  dapr.io/app-port: "8080" 

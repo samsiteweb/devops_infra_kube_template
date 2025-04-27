@@ -1,0 +1,154 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argocd-image-updater
+  namespace: argocd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argocd-image-updater
+  namespace: argocd
+rules:
+- apiGroups:
+  - argoproj.io
+  resources:
+  - applications
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+---
+# Add additional role to access secrets in semanix namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argocd-image-updater-semanix
+  namespace: semanix
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+---
+# Binding for semanix namespace access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argocd-image-updater-semanix
+  namespace: semanix
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argocd-image-updater-semanix
+subjects:
+- kind: ServiceAccount
+  name: argocd-image-updater
+  namespace: argocd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argocd-image-updater
+  namespace: argocd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argocd-image-updater
+subjects:
+- kind: ServiceAccount
+  name: argocd-image-updater
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-image-updater-config
+  namespace: argocd
+data:
+  registries.conf: |
+    registries:
+    - name: ACR
+      prefix: ${AZURE_REGISTRY_NAME}.azurecr.io
+      api_url: https://${AZURE_REGISTRY_NAME}.azurecr.io
+      credentials: pullsecret:semanix/acr-pull-secret
+      ping: yes
+      insecure: no
+      default: yes
+  log.level: info
+  log.json: "false"
+  # ArgoCD API connection settings
+  argocd.server: "argocd-server.argocd.svc.cluster.local"
+  argocd.plaintext: "false"
+  argocd.insecure: "true"
+  # Set graceperiod to 5 minutes - don't update too frequently
+  kube.graceperiod: "5m"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-image-updater-acr
+  namespace: argocd
+type: Opaque
+stringData:
+  username: ${AZURE_REGISTRY_USERNAME}  # Replace at runtime with Azure credentials
+  password: ${AZURE_REGISTRY_PASSWORD}  # Replace at runtime with Azure credentials
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-image-updater
+  namespace: argocd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: argocd-image-updater
+  template:
+    metadata:
+      labels:
+        app: argocd-image-updater
+    spec:
+      serviceAccountName: argocd-image-updater
+      containers:
+      - name: argocd-image-updater
+        image: quay.io/argoprojlabs/argocd-image-updater:v0.12.2
+        imagePullPolicy: Always
+        env:
+          - name: ARGOCD_GRPC_WEB
+            value: "true"
+          - name: ARGOCD_SERVER
+            value: "argocd-server.argocd.svc.cluster.local"
+          - name: ARGOCD_INSECURE
+            value: "true"
+          - name: ARGOCD_TOKEN                # Use a token for auth
+            valueFrom:
+              secretKeyRef:
+                name: argocd-image-updater-secret
+                key: argocd.token
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+      volumes:
+      - name: config
+        configMap:
+          name: argocd-image-updater-config 
