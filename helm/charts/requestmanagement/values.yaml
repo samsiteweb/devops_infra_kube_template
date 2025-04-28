@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: samthedonz.azurecr.io/requestmanagementapi
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: ""
 
 nameOverride: ""
 fullnameOverride: ""
@@ -22,6 +22,7 @@ securityContext: {}
 service:
   type: NodePort
   port: 8090
+
 
 ingress:
   enabled: false

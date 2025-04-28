@@ -7,6 +7,7 @@ metadata:
     argocd-image-updater.argoproj.io/image-list: accessmanagementapi=samthedonz.azurecr.io/accessmanagementapi
     argocd-image-updater.argoproj.io/accessmanagementapi.update-strategy: digest
     argocd-image-updater.argoproj.io/accessmanagementapi.allow-tags: regexp:^[a-f0-9]{7}$
+    
 spec:
   project: default
   source:
