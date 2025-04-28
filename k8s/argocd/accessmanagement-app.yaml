@@ -24,7 +24,7 @@ spec:
         - name: image.repository
           value: "samthedonz.azurecr.io/accessmanagementapi"
         - name: image.tag
-          value: "2.x.x"
+          value: "53dbf54"
       values: |
         dapr:
           enabled: true
