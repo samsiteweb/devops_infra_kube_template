@@ -5,8 +5,8 @@ metadata:
   namespace: argocd
   annotations:
     argocd-image-updater.argoproj.io/image-list: requestmanagementapi=samthedonz.azurecr.io/requestmanagementapi
-    argocd-image-updater.argoproj.io/requestmanagementapi.update-strategy: digest
-    argocd-image-updater.argoproj.io/requestmanagementapi.allow-tags: regexp:^[a-f0-9]{7}$
+    argocd-image-updater.argoproj.io/accessmanagementapi.update-strategy: semver
+    argocd-image-updater.argoproj.io/accessmanagementapi.allow-tags: semver:>=0.0.0
 spec:
   project: default
   source:
@@ -24,7 +24,7 @@ spec:
         - name: image.repository
           value: "samthedonz.azurecr.io/requestmanagementapi"
         - name: image.tag
-          value: "a9672eb"
+          value: ""
       values: |
         dapr:
           enabled: true
