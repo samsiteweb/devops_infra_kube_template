@@ -10,7 +10,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "${AZURE_REGISTRY_NAME}.azurecr.io/helm"
+    repoURL: "$samthedonz.azurecr.io/helm"
     targetRevision: "0.1.0"
     chart: accessmanagement
     helm:
@@ -22,7 +22,7 @@ spec:
         - name: serviceAccount.name
           value: "semanix-backend-accessmanagement"
         - name: image.repository
-          value: "${AZURE_REGISTRY_NAME}.azurecr.io/accessmanagementapi"
+          value: "samthedonz.azurecr.io/accessmanagementapi"
         - name: image.tag
           value: "latest"
       values: |
