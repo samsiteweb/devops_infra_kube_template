@@ -39,7 +39,7 @@ kubectl -n argocd create secret generic argocd-image-updater-secret \
 
 # Process the template and apply
 echo "Applying ArgoCD Image Updater manifests..."
-cat k8s/argocd/image-updater.yaml | \
+cat k8s/argocd/argocd-image-updater/image-updater.yaml | \
   sed "s/\${AZURE_REGISTRY_NAME}/$AZURE_REGISTRY_NAME/g" | \
   kubectl apply -f -
 
