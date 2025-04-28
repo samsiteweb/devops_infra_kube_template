@@ -10,9 +10,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "https://github.com/YOUR_ORG/semanix-deployment.git"
-    targetRevision: main
-    path: helm/charts/requestmanagement
+    repoURL: "${AZURE_REGISTRY_NAME}.azurecr.io/helm"
+    targetRevision: "0.1.0"
+    chart: requestmanagement
     helm:
       valueFiles:
         - values.yaml

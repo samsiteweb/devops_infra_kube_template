@@ -1,85 +1,53 @@
-name: Helm Chart Update
+name: Helm Charts Update
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'helm/**'
-      - 'k8s/argocd/**'  # Also trigger on changes to ArgoCD manifests
+      - 'helm/charts/**'
+      - 'k8s/argocd/**'
 
-  # Allow manual trigger
-  workflow_dispatch:
+env:
+  AZURE_REGISTRY_HELM_PATH: helm
 
 jobs:
-  lint:
-    runs-on: [self-hosted, deploy]
+  push-all-charts:
+    runs-on: [self-hosted, azure]
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: '3.11.0'
-      
-      - name: Lint Helm charts
-        run: |
-          for chart in helm/charts/*; do
-            if [ -d "$chart" ]; then
-              echo "Linting chart: $chart"
-              helm lint "$chart"
-            fi
-          done
+    - uses: actions/checkout@v3
 
-  sync-argocd:
-    needs: lint
-    runs-on: [self-hosted, deploy]
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Install Argo CD CLI
-        run: |
-          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x argocd
-          sudo mv argocd /usr/local/bin
-      
-      - name: ArgoCD Login
-        run: |
-          sudo argocd login ${{ secrets.ARGOCD_SERVER }} --username ${{ secrets.ARGOCD_USER }} --password ${{ secrets.ARGOCD_PASSWORD }} --insecure
-      
-      - name: Process and Apply ArgoCD Applications
-        env:
-          AZURE_REGISTRY_NAME: ${{ secrets.AZURE_REGISTRY_NAME }}
-        run: |
-          # Find all ArgoCD application manifests
-          for app_file in k8s/argocd/*-app.yaml; do
-            if [ -f "$app_file" ]; then
-              # Extract app name from filename
-              app_name=$(basename "$app_file" | sed 's/-app.yaml//')
-              
-              echo "Processing application: $app_name"
-              
-              # Process the manifest file and replace variables
-              tmp_file=$(mktemp)
-              cat "$app_file" | \
-                sed "s/\${AZURE_REGISTRY_NAME}/$AZURE_REGISTRY_NAME/g" > "$tmp_file"
-              
-              # Apply to create/update the application
-              echo "Creating/updating ArgoCD application: semanix-backend-$app_name"
-              sudo kubectl apply -f "$tmp_file"
-              
-              # Wait a moment for the application to register
-              sleep 3
-              
-              # Sync the application
-              echo "Syncing application: semanix-backend-$app_name"
-              if sudo argocd app get "semanix-backend-$app_name" &>/dev/null; then
-                sudo argocd app sync "semanix-backend-$app_name" --timeout 180
-                sudo argocd app wait "semanix-backend-$app_name" --health --timeout 180
-              else
-                echo "Warning: Application $app_name could not be found after creation. Please check for errors."
-              fi
-              
-              # Clean up
-              rm "$tmp_file"
-            fi
-          done 
+    - name: Setup Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: '3.11.0'
+
+    - name: Login to Helm OCI Registry
+      run: |
+        helm registry login ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io \
+          --username ${{ secrets.AZURE_REGISTRY_USERNAME }} \
+          --password ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+    - name: Package and Push All Charts
+      run: |
+        mkdir -p ./deploy/helm/releases
+        
+        # Loop through all chart folders
+        for dir in helm/charts/*/
+        do
+          echo "Processing chart in directory: $dir"
+          
+          # Read chart name
+          chart_name=$(basename "$dir")
+          
+          # Read chart version
+          chart_version=$(grep '^version:' "$dir/Chart.yaml" | awk '{print $2}')
+          
+          echo "Chart Name: $chart_name, Version: $chart_version"
+          
+          # Package the chart
+          helm package "$dir" -d ./deploy/helm/releases
+          
+          # Push the chart
+          helm push ./deploy/helm/releases/${chart_name}-${chart_version}.tgz \
+            oci://${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/${{ env.AZURE_REGISTRY_HELM_PATH }}
+        done
