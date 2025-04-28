@@ -5,8 +5,8 @@ metadata:
   namespace: argocd
   annotations:
     argocd-image-updater.argoproj.io/image-list: requestmanagementapi=samthedonz.azurecr.io/requestmanagementapi
-    argocd-image-updater.argoproj.io/accessmanagementapi.update-strategy: semver
-    argocd-image-updater.argoproj.io/accessmanagementapi.allow-tags: semver:>=0.0.0
+    argocd-image-updater.argoproj.io/requestmanagementapi.update-strategy: semver
+    argocd-image-updater.argoproj.io/requestmanagementapi.allow-tags: semver: ~0
 spec:
   project: default
   source:
