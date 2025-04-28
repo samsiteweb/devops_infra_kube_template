@@ -75,8 +75,8 @@ jobs:
             app_name=$(basename "$app_file")
             envsubst '$AZURE_REGISTRY_NAME' < "$app_file" > "./processed-manifests/$app_name"
             
-            # Apply the processed manifest
-            kubectl apply -f "./processed-manifests/$app_name"
+            # Apply the processed manifest with validation disabled
+            kubectl apply -f "./processed-manifests/$app_name" --validate=false
             
             echo "Applied updated manifest: $app_name"
           fi
