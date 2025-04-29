@@ -55,12 +55,18 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /swagger
+              path: /health
               port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: /swagger
+              path: /health
               port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
