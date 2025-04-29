@@ -14,7 +14,6 @@ spec:
     targetRevision: "0.1.5"
     chart: requestmanagement
     helm: 
-      oci: true
       valueFiles:
         - values.yaml
       parameters:
