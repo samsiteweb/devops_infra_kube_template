@@ -13,8 +13,7 @@ spec:
     repoURL: "samthedonz.azurecr.io/helm"   # << Note oci:// here
     targetRevision: "0.1.9"                     # << This is your Helm chart version (the tag)
     chart: accessmanagement
-    helm:
-      oci: true                                 # << Required for OCI support
+    helm:                               # << Required for OCI support
       parameters:
         - name: serviceAccount.create
           value: "false"
