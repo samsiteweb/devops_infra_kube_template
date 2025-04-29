@@ -3,10 +3,14 @@ kind: Application
 metadata:
   name: semanix-backend-accessmanagement
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: accessmanagementapi=samthedonz.azurecr.io/accessmanagementapi
+    argocd-image-updater.argoproj.io/accessmanagementapi.update-strategy: semver
+    argocd-image-updater.argoproj.io/accessmanagementapi.allow-tags: semver:~0
 spec:
   project: default
   source:
-    repoURL: oci://samthedonz.azurecr.io/helm   # << Note oci:// here
+    repoURL: "samthedonz.azurecr.io/helm"   # << Note oci:// here
     targetRevision: "0.1.9"                     # << This is your Helm chart version (the tag)
     chart: accessmanagement
     helm:
@@ -19,7 +23,7 @@ spec:
         - name: image.repository
           value: "samthedonz.azurecr.io/accessmanagementapi"
         - name: image.tag
-          value: ""
+          value: "0.2.11"
       values: |
         dapr:
           enabled: true
