@@ -11,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: "samthedonz.azurecr.io/helm"
-    targetRevision: "0.1.9"
+    targetRevision: "0.1.10"
     chart: requestmanagement
     helm: 
       valueFiles:
@@ -24,7 +24,7 @@ spec:
         - name: image.repository
           value: "samthedonz.azurecr.io/requestmanagementapi"
         - name: image.tag
-          value: "0.1.1"
+          value: ""
       values: |
         dapr:
           enabled: true

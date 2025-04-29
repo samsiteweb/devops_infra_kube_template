@@ -68,13 +68,15 @@ env:
   - name: ASPNETCORE_ENVIRONMENT
     value: "Development"
   - name: ASPNETCORE_URLS
-    value: "http://+:8090" 
+    value: "http://+:8090"
+  - name: Dapr__Enabled
+    value: "false"
 
 imagePullSecrets:
   - name: acr-pull-secret
 
 dapr:
-  enabled: true
+  enabled: false
   appId: requestmanagement
   appPort: 8090
   config: dapr-config
