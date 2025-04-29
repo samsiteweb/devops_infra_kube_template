@@ -11,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: "samthedonz.azurecr.io/helm"
-    targetRevision: "0.1.7"
+    targetRevision: "0.1.8"
     chart: requestmanagement
     helm: 
       valueFiles:
