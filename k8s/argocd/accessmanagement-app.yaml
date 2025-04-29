@@ -3,19 +3,14 @@ kind: Application
 metadata:
   name: semanix-backend-accessmanagement
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: accessmanagementapi=samthedonz.azurecr.io/accessmanagementapi
-    argocd-image-updater.argoproj.io/accessmanagementapi.update-strategy: semver
-    argocd-image-updater.argoproj.io/accessmanagementapi.allow-tags: semver: ~0
 spec:
   project: default
   source:
-    repoURL: "oci://samthedonz.azurecr.io/helm"
-    targetRevision: "0.1.9"
+    repoURL: oci://samthedonz.azurecr.io/helm   # << Note oci:// here
+    targetRevision: "0.1.9"                     # << This is your Helm chart version (the tag)
     chart: accessmanagement
     helm:
-      valueFiles:
-        - values.yaml
+      oci: true                                 # << Required for OCI support
       parameters:
         - name: serviceAccount.create
           value: "false"
@@ -31,7 +26,6 @@ spec:
           appId: accessmanagement
           appPort: 8080
           config: dapr-config
-      oci: true   # <<< ADD THIS
   destination:
     server: https://kubernetes.default.svc
     namespace: semanix
@@ -39,5 +33,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
