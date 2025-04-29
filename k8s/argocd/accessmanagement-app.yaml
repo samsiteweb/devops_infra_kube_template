@@ -11,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: "samthedonz.azurecr.io/helm"   # << Note oci:// here
-    targetRevision: "0.1.9"                     # << This is your Helm chart version (the tag)
+    targetRevision: "0.2.0"                     # << This is your Helm chart version (the tag)
     chart: accessmanagement
     helm:                               # << Required for OCI support
       parameters:
