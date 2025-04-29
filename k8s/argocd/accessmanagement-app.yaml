@@ -7,11 +7,10 @@ metadata:
     argocd-image-updater.argoproj.io/image-list: accessmanagementapi=samthedonz.azurecr.io/accessmanagementapi
     argocd-image-updater.argoproj.io/accessmanagementapi.update-strategy: semver
     argocd-image-updater.argoproj.io/accessmanagementapi.allow-tags: semver: ~0
-
 spec:
   project: default
   source:
-    repoURL: "samthedonz.azurecr.io/helm"
+    repoURL: "oci://samthedonz.azurecr.io/helm"
     targetRevision: "0.1.9"
     chart: accessmanagement
     helm:
@@ -32,6 +31,7 @@ spec:
           appId: accessmanagement
           appPort: 8080
           config: dapr-config
+      oci: true   # <<< ADD THIS
   destination:
     server: https://kubernetes.default.svc
     namespace: semanix
@@ -40,4 +40,4 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
