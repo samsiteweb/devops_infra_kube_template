@@ -24,7 +24,7 @@ spec:
         - name: image.repository
           value: "samthedonz.azurecr.io/requestmanagementapi"
         - name: image.tag
-          value: ""
+          value: "0.2.11"
       values: |
         dapr:
           enabled: true
