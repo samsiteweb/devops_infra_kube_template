@@ -51,7 +51,7 @@ spec:
             {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8090
               protocol: TCP
           livenessProbe:
             httpGet:
