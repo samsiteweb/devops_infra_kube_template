@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: accessmanagementapi=samthedonz.azurecr.io/accessmanagementapi
     argocd-image-updater.argoproj.io/accessmanagementapi.update-strategy: semver
-    argocd-image-updater.argoproj.io/accessmanagementapi.allow-tags: semver:~0
+    argocd-image-updater.argoproj.io/accessmanagementapi.allow-tags: regexp:^[0-9]+\.[0-9]+\.[0-9]+$
 spec:
   project: default
   source:
